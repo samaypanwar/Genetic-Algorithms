@@ -17,19 +17,25 @@ class GeneticAlgorithm:
     def __init__(self, fitnessFunction):
 
         self.populationSize = 1000
-        self.nBits = 2
+        self.nBits = 16
         self.nGenerations = 10
         self.crossoverRate = 0.9
-        self.mutatationRate = 0.01
-        self.maxNumber = 2 ** (63) - 1
-        self.maxrange = random.default_rng()
+        self.maxNumber = 10.0
+        self.bounds = [
+            [-self.maxNumber, self.maxNumber],
+            [-self.maxNumber, self.maxNumber],
+        ]
+        self.mutatationRate = 1.0 / (float(self.nBits * len(self.bounds)))
+
         self.fitnessFunction = lambda x: fitnessFunction(x)
-        # Population ranges between all possible floats
+        # Population ranges between all the pre-set bounds
         self.population = [
-            self.maxrange.uniform(-self.maxNumber, self.maxNumber, size=self.nBits)
+            random.randint(0, 2, self.nBits * len(self.bounds))
             for _ in range(self.populationSize)
         ]
-        self.bestChild, self.bestScore = 0, self.fitnessFunction(self.population[0])
+        self.bestChild, self.bestScore = 0, self.fitnessFunction(
+            self.decode(self.population[0])
+        )
         # default is a maximisation problem
         self.maximisation = True
 
@@ -38,7 +44,9 @@ class GeneticAlgorithm:
         for generation in range(self.nGenerations):
 
             print("\n---Generation {} has begun----\n".format(generation + 1))
-            scores = [self.fitnessFunction(candidate) for candidate in self.population]
+
+            decoded = [self.decode(candidate) for candidate in self.population]
+            scores = [self.fitnessFunction(candidate) for candidate in decoded]
 
             # The size of the score array and the population should be the same
             assert len(scores) == len(self.population)
@@ -86,15 +94,13 @@ class GeneticAlgorithm:
             # Previous generation of population is replaced by the children
             self.population = children
 
-        return self.bestChild
+        return self.decode(self.bestChild)
 
     def mutation(self, individual):
 
         for gene in range(self.nBits):
             if random.rand() < self.mutatationRate:
-                individual[gene] = self.maxrange.uniform(
-                    -self.maxNumber, self.maxNumber, size=1
-                )[0]
+                individual[gene] = 1 - individual[gene]
 
     def crossover(self, parents):
 
@@ -128,3 +134,24 @@ class GeneticAlgorithm:
 
         # Returns the individual with the best score amongst the chosen sample
         return self.population[selected_index]
+
+    def decode(self, individual):
+
+        decoded = []
+        largest = 2 ** self.nBits
+        for i in range(len(self.bounds)):
+            # extract the substring
+            start, end = i * self.nBits, (i * self.nBits) + self.nBits
+            substring = individual[start:end]
+            # convert bitstring to a string of chars
+            chars = "".join([str(character) for character in substring])
+            # convert string to integer
+            integer = int(chars, 2)
+            # scale integer to desired range
+            value = self.bounds[i][0] + (integer / largest) * (
+                self.bounds[i][1] - self.bounds[i][0]
+            )
+            # store
+            decoded.append(value)
+
+        return decoded

@@ -1,6 +1,7 @@
 #%%
 import numpy as np
 from genetic import GeneticAlgorithm
+import time
 #%%
 def fitnessFunction(individual):
     x, y = individual.copy()
@@ -8,6 +9,11 @@ def fitnessFunction(individual):
     return z
 
 #%%
+s = time.time()
 GA = GeneticAlgorithm(fitnessFunction)
-GA.evolution()
+bestCombo = GA.evolution()
 
+print("Execution time: ", time.time() - s)
+print(bestCombo)
+
+# %%
