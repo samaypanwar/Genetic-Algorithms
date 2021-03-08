@@ -2,14 +2,16 @@ from numpy import random
 
 
 class GeneticAlgorithm:
-    """ This Class handles all the optimisation for the Genetic Algorithm. The hyperparameters are described below. The default optimisation is for maximisation of the fitnessFunction. For now, the individual is [x, y]
-    
-        HYPERPARAMETERS: 
-        self.populationSize = 1000
-        self.nBits = 2
-        self.nGenerations = 10
-        self.crossoverRate = 0.9
-        self.mutatationRate = 0.01 
+    """This Class handles all the optimisation for the Genetic Algorithm.
+    The hyperparameters are described below. The default optimisation is for maximisation of the fitnessFunction.
+    For now, the individual is [x, y]
+
+       HYPERPARAMETERS:
+       self.populationSize = 1000
+       self.nBits = 2
+       self.nGenerations = 10
+       self.crossoverRate = 0.9
+       self.mutatationRate = 0.01
     """
 
     def __init__(self, fitnessFunction):
@@ -22,7 +24,7 @@ class GeneticAlgorithm:
         self.maxNumber = 2 ** (63) - 1
         self.maxrange = random.default_rng()
         self.fitnessFunction = lambda x: fitnessFunction(x)
-        # Population ranges between all possible floats 
+        # Population ranges between all possible floats
         self.population = [
             self.maxrange.uniform(-self.maxNumber, self.maxNumber, size=self.nBits)
             for _ in range(self.populationSize)
@@ -40,8 +42,8 @@ class GeneticAlgorithm:
 
             # The size of the score array and the population should be the same
             assert len(scores) == len(self.population)
-            
-            # A parent is chosen from 10 random possible parents which has the best 
+
+            # A parent is chosen from 10 random possible parents which has the best
             # score amongst the random sample
             allParents = [
                 self.select_parent(scores) for _ in range(self.populationSize)
@@ -70,13 +72,13 @@ class GeneticAlgorithm:
                         )
 
             for parentIndex in range(0, self.populationSize - 1, 2):
-                
+
                 # Take two adjacent parents and make their children
                 parents = allParents[parentIndex : parentIndex + 2]
 
                 for child in self.crossover(parents):
 
-                    # Induce a mutation into the child genes and add it to 
+                    # Induce a mutation into the child genes and add it to
                     # the current generation of children
                     self.mutation(child)
                     children.append(child)
