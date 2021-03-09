@@ -2,16 +2,21 @@ from numpy import random
 
 
 class GeneticAlgorithm:
+
     """This Class handles all the optimisation for the Genetic Algorithm.
     The hyperparameters are described below. The default optimisation is for maximisation of the fitnessFunction.
     For now, the individual is [x, y]
 
        HYPERPARAMETERS:
-       self.populationSize = 1000
-       self.nBits = 2
-       self.nGenerations = 10
-       self.crossoverRate = 0.9
-       self.mutatationRate = 0.01
+        self.populationSize = 1000
+        self.nBits = 16
+        self.nGenerations = 10
+        self.crossoverRate = 0.9
+        self.maxNumber = 10.0
+        self.bounds = [
+            [-self.maxNumber, self.maxNumber],
+            [-self.maxNumber, self.maxNumber],
+        ]
     """
 
     def __init__(self, fitnessFunction):
@@ -108,12 +113,17 @@ class GeneticAlgorithm:
 
         if random.rand() < self.crossoverRate:
 
-            # We take only 1 crossover point for simplicity in our analysis
-            # because of which there can be two possible children only
-            crossoverPoint = random.randint(0, len(childOne) - 1)
+            # Each gene has equal probabilty of coming from either parent
+            parentOneGene = 0.50
 
-            childOne = [*parents[0][:crossoverPoint], *parents[1][crossoverPoint:]]
-            childTwo = [*parents[0][crossoverPoint:], *parents[1][:crossoverPoint]]
+            for gene in range(len(childOne)):
+
+                if random.rand() < parentOneGene:
+                    childOne[gene] = parents[0][gene]
+                    childTwo[gene] = parents[1][gene]
+                else:
+                    childOne[gene] = parents[1][gene]
+                    childTwo[gene] = parents[0][gene]
 
         return [childOne, childTwo]
 
