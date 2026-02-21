@@ -15,6 +15,8 @@ matplotlib = "^3.7"
 pytest = "^7.4"
 black = "^23.0"
 mypy = "^1.5"
+papermill = {version = "^2.6.0", python = ">=3.10"}
+ipykernel = {version = "^7.2.0", python = ">=3.10"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
